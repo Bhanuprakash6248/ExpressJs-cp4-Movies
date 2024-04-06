@@ -85,7 +85,7 @@ app.get('/movies/:movieId/', async (request, response) => {
     movie_id = ${movieId};
   `
   const movieTable = await db.get(getMovieQuery)
-  response.send(movieTable.map(each => convertMovieDbToResponseObj(each)))
+  response.send(convertMovieDbToResponseObj(movieTable))
 })
 
 //API 4 -> Update the movie table
@@ -129,7 +129,9 @@ app.get('/directors/', async (request, response) => {
     director;
   `
   const directorDetails = await db.all(directorsAllQuery)
-  response.send(directorDetails)
+  response.send(
+    directorDetails.map(each => convertDirectorDbToResponseObj(each)),
+  )
 })
 
 //API 7 get  directors
@@ -139,9 +141,10 @@ app.get('/directors/:directorId/movies/', async (request, response) => {
   const getDirector = `
   SELECT *
   FROM director
+  NATURAL JOIN movie
   WHERE 
     director_id = ${directorId};
   `
-  const directorsDetails = await db.get(getDirector)
+  const directorsDetails = await db.all(getDirector)
   response.send(directorsDetails.map(each => ({movieName: each.movie_name})))
 })
